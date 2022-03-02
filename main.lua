@@ -242,85 +242,113 @@ function love.update(dt)
             end
         end
 
-        watchingArea = ball.x < VIRTUAL_WIDTH/2
+        -- PADDLE AI
+
+        watchingArea = ball.x < VIRTUAL_WIDTH/2 - 30
         watchingDirection = ball.dx < 0
-        
+        player1Position = player1.y + PADDLE_HEIGHT/2
+
         if watchingArea and watchingDirection then
-            if FIRST_POINT == false then
-                ballX = ball.x
-                ballY = ball.y
-                FIRST_POINT = true
-            end
-            if COUNTER <= 10 then
-                COUNTER = COUNTER + 1
-            end
-    
-            if FIRST_POINT == true and SECOND_POINT == false and COUNTER == 10 then
-                secondBallX = ball.x
-                secondBallY = ball.y
-                SECOND_POINT = true
-            end
-            
-            if FIRST_POINT and SECOND_POINT and COUNTER == 10 then
-                print("FIRST POINT", ballX, ballY)
-                print("SECOND POINT", secondBallX, secondBallY)
-                angle = nil
-                leftTrajectory = ballX - PADDLE_WIDTH
-                isTrajectoryUp = false
-
-                if ballY > secondBallY then
-                    angle = math.atan(ballY - secondBallY ,ballX - secondBallX)
-                    isTrajectoryUp = true
-                else
-                    angle = math.atan(secondBallY - ballY ,ballX - secondBallX)
-                    isTrajectoryUp = false
-                end 
-
-                verticalTrajectory = math.floor((leftTrajectory * math.sin(angle))/ math.sin(1.5707963268-angle))
-                finalPoint = nil
-                if isTrajectoryUp then
-                    finalPoint = ballY - verticalTrajectory
-                else
-                    finalPoint = ballY + verticalTrajectory
-                end
-
-                player1Position = math.floor(player1.y + PADDLE_HEIGHT/2)
-
-                if player1Position > finalPoint then
-                    player1.dy = -PADDLE_SPEED
-                elseif player1Position < finalPoint then
-                    player1.dy = PADDLE_SPEED
-                else
-                    player1.dy = 0
-                end
-
-                player1:update(dt)
-                print("arctan", angle)
-                print("ANGLE", angle*(180/3.1416))
-                print("final", finalPoint)
-                -- calcular ángulo y punto final
-                
-            end 
-        else
-
-            -- reacomodo el paddle cuando la bola no está en la zona que debo monitorear
-            player1Position = math.floor(player1.y + PADDLE_HEIGHT/2)
-            if player1Position > VIRTUAL_HEIGHT/2 then
+            if ball.y < player1Position  then
                 player1.dy = -PADDLE_SPEED
-            elseif player1Position < VIRTUAL_HEIGHT/2 then
+            elseif ball.y > player1Position then
                 player1.dy = PADDLE_SPEED
             else
                 player1.dy = 0
             end
-            player1:update(dt)
-            FIRST_POINT = false
-            SECOND_POINT = false
-            COUNTER = 0
-            finalPoint = nil
-            isTrajectoryUp = false
-            angle = nil
+        else
+            -- When the BALL isn´t in the watching area, AI PADDLE is repositioned in an area near the middle of the VIRTUAL HEIGHT
+            if player1Position == VIRTUAL_HEIGHT/2 or (player1Position >= VIRTUAL_HEIGHT/2 - 5 and player1Position <= VIRTUAL_HEIGHT/2 + 5) then
+                player1.dy = 0
+            elseif player1Position > VIRTUAL_HEIGHT/2 then
+                player1.dy = -PADDLE_SPEED
+            elseif player1Position < VIRTUAL_HEIGHT/2 then
+                player1.dy = PADDLE_SPEED
+            end
         end
 
+        
+        -- if watchingArea and watchingDirection then
+        --     if FIRST_POINT == false then
+        --         ballX = ball.x
+        --         ballY = ball.y
+        --         FIRST_POINT = true
+        --     end
+        --     if COUNTER <= 10 then
+        --         COUNTER = COUNTER + 1
+        --     end
+    
+        --     if FIRST_POINT == true and SECOND_POINT == false and COUNTER == 10 then
+        --         secondBallX = ball.x
+        --         secondBallY = ball.y
+        --         SECOND_POINT = true
+        --     end
+            
+        --     if FIRST_POINT and SECOND_POINT and COUNTER == 10 then
+        --         print("FIRST POINT", ballX, ballY)
+        --         print("SECOND POINT", secondBallX, secondBallY)
+        --         angle = nil
+        --         leftTrajectory = ballX - PADDLE_WIDTH
+        --         isTrajectoryUp = false
+
+        --         if ballY > secondBallY then
+        --             angle = math.atan(ballY - secondBallY ,ballX - secondBallX)
+        --             isTrajectoryUp = true
+        --         else
+        --             angle = math.atan(secondBallY - ballY ,ballX - secondBallX)
+        --             isTrajectoryUp = false
+        --         end 
+
+        --         verticalTrajectory = (leftTrajectory * math.sin(angle))/ math.sin(1.5707963268-angle)
+        --         finalPoint = nil
+        --         if isTrajectoryUp and ballY - verticalTrajectory >=0 then
+        --             finalPoint = ballY - verticalTrajectory
+        --         elseif isTrajectoryUp == false and ballY + verticalTrajectory <= VIRTUAL_HEIGHT then 
+        --             finalPoint = ballY + verticalTrajectory
+        --         else
+        --             FIRST_POINT = false
+        --             SECOND_POINT = false
+        --             COUNTER = 0
+        --             finalPoint = nil
+        --             isTrajectoryUp = false
+        --             angle = nil
+        --         end
+
+        --         player1Position = player1.y + PADDLE_HEIGHT/2
+
+        --         if finalPoint and player1Position > finalPoint then
+        --             player1.dy = -PADDLE_SPEED
+        --         elseif finalPoint and player1Position < finalPoint then
+        --             player1.dy = PADDLE_SPEED
+        --         else
+        --             player1.dy = 0
+        --         end
+
+        --         player1:update(dt)
+        --         print("arctan", angle)
+        --         print("final", finalPoint)
+        --         -- calcular ángulo y punto final
+                
+        --     end 
+        -- else
+
+        --     -- reacomodo el paddle cuando la bola no está en la zona que debo monitorear
+        --     player1Position = math.floor(player1.y + PADDLE_HEIGHT/2)
+        --     if player1Position > VIRTUAL_HEIGHT/2 then
+        --         player1.dy = -PADDLE_SPEED
+        --     elseif player1Position < VIRTUAL_HEIGHT/2 then
+        --         player1.dy = PADDLE_SPEED
+        --     else
+        --         player1.dy = 0
+        --     end
+        --     player1:update(dt)
+        --     FIRST_POINT = false
+        --     SECOND_POINT = false
+        --     COUNTER = 0
+        --     finalPoint = nil
+        --     isTrajectoryUp = false
+        --     angle = nil
+        -- end
     end
 
     --

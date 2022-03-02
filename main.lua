@@ -103,7 +103,6 @@ function love.load()
     -- detected by other functions and modules
     player1 = Paddle(10, VIRTUAL_HEIGHT/2 - 10, PADDLE_WIDTH, PADDLE_HEIGHT)
     player2 = Paddle(VIRTUAL_WIDTH - 15, VIRTUAL_HEIGHT/2 - 10, PADDLE_WIDTH, PADDLE_HEIGHT)
-    -- button = Button(VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT/2 - 10, 5, 40)
 
     -- place a ball in the middle of the screen (x, y, ancho y alto)
     ball = Ball(VIRTUAL_WIDTH / 2 - 8, VIRTUAL_HEIGHT / 2 - 8, 16, 16)
@@ -162,21 +161,27 @@ function love.update(dt)
     elseif gameState == 'play' then
         -- deteshtly increasing it, then altering the dy based on the position
         -- at which it collided, then playing a sound effect
-        if ball:collides(player1) then
-            ball.dx = -ball.dx * 1
-            ball.x = player1.x + 17
 
+        print(ball.dx)
+        if ball:collides(player1) then
+            ball.dx = -ball.dx * 1.03
+            ball.x = player1.x + 17
+            
             -- keep velocity going in the same direction, but randomize it
             if ball.dy < 0 then
                 ball.dy = -math.random(10, 150)
             else
                 ball.dy = math.random(10, 150)
             end
-
+            
             sounds['paddle_hit']:play()
         end
         if ball:collides(player2) then
-            ball.dx = -ball.dx * 1
+            player2.height = PADDLE_HEIGHT
+            if (ball.dx > 80 or ball.dx < -80) and PADDLE_HEIGHT > 15 then
+                PADDLE_HEIGHT = PADDLE_HEIGHT * 0.99
+            end
+            ball.dx = -ball.dx * 1.03
             ball.x = player2.x - 16
 
             -- keep velocity going in the same direction, but randomize it
@@ -211,6 +216,9 @@ function love.update(dt)
             player2Score = player2Score + 1
             sounds['score']:play()
 
+            player1.height = player1.height * 0.9
+            player2.height = player2.height * 0.9
+
             -- if we've reached a score of 10, the game is over; set the
             -- state to done so we can show the victory message
             if player2Score == 10 then
@@ -229,6 +237,9 @@ function love.update(dt)
             servingPlayer = 2
             player1Score = player1Score + 1
             sounds['score']:play()
+
+            player1.height = player1.height * 0.9
+            player2.height = player2.height * 0.9
 
             -- if we've reached a score of 10, the game is over; set the
             -- state to done so we can show the victory message
@@ -266,102 +277,13 @@ function love.update(dt)
                 player1.dy = PADDLE_SPEED
             end
         end
-
-        
-        -- if watchingArea and watchingDirection then
-        --     if FIRST_POINT == false then
-        --         ballX = ball.x
-        --         ballY = ball.y
-        --         FIRST_POINT = true
-        --     end
-        --     if COUNTER <= 10 then
-        --         COUNTER = COUNTER + 1
-        --     end
-    
-        --     if FIRST_POINT == true and SECOND_POINT == false and COUNTER == 10 then
-        --         secondBallX = ball.x
-        --         secondBallY = ball.y
-        --         SECOND_POINT = true
-        --     end
-            
-        --     if FIRST_POINT and SECOND_POINT and COUNTER == 10 then
-        --         print("FIRST POINT", ballX, ballY)
-        --         print("SECOND POINT", secondBallX, secondBallY)
-        --         angle = nil
-        --         leftTrajectory = ballX - PADDLE_WIDTH
-        --         isTrajectoryUp = false
-
-        --         if ballY > secondBallY then
-        --             angle = math.atan(ballY - secondBallY ,ballX - secondBallX)
-        --             isTrajectoryUp = true
-        --         else
-        --             angle = math.atan(secondBallY - ballY ,ballX - secondBallX)
-        --             isTrajectoryUp = false
-        --         end 
-
-        --         verticalTrajectory = (leftTrajectory * math.sin(angle))/ math.sin(1.5707963268-angle)
-        --         finalPoint = nil
-        --         if isTrajectoryUp and ballY - verticalTrajectory >=0 then
-        --             finalPoint = ballY - verticalTrajectory
-        --         elseif isTrajectoryUp == false and ballY + verticalTrajectory <= VIRTUAL_HEIGHT then 
-        --             finalPoint = ballY + verticalTrajectory
-        --         else
-        --             FIRST_POINT = false
-        --             SECOND_POINT = false
-        --             COUNTER = 0
-        --             finalPoint = nil
-        --             isTrajectoryUp = false
-        --             angle = nil
-        --         end
-
-        --         player1Position = player1.y + PADDLE_HEIGHT/2
-
-        --         if finalPoint and player1Position > finalPoint then
-        --             player1.dy = -PADDLE_SPEED
-        --         elseif finalPoint and player1Position < finalPoint then
-        --             player1.dy = PADDLE_SPEED
-        --         else
-        --             player1.dy = 0
-        --         end
-
-        --         player1:update(dt)
-        --         print("arctan", angle)
-        --         print("final", finalPoint)
-        --         -- calcular ángulo y punto final
-                
-        --     end 
-        -- else
-
-        --     -- reacomodo el paddle cuando la bola no está en la zona que debo monitorear
-        --     player1Position = math.floor(player1.y + PADDLE_HEIGHT/2)
-        --     if player1Position > VIRTUAL_HEIGHT/2 then
-        --         player1.dy = -PADDLE_SPEED
-        --     elseif player1Position < VIRTUAL_HEIGHT/2 then
-        --         player1.dy = PADDLE_SPEED
-        --     else
-        --         player1.dy = 0
-        --     end
-        --     player1:update(dt)
-        --     FIRST_POINT = false
-        --     SECOND_POINT = false
-        --     COUNTER = 0
-        --     finalPoint = nil
-        --     isTrajectoryUp = false
-        --     angle = nil
-        -- end
     end
 
     --
     -- paddles can move no matter what state we're in
     --
     -- player 1
-    -- if love.keyboard.isDown('w') then
-    --     player1.dy = -PADDLE_SPEED 
-    -- elseif love.keyboard.isDown('s') then
-    --     player1.dy = PADDLE_SPEED
-    -- else
-    --     player1.dy = 0
-    -- end
+    -- no is moved by AI
 
     -- player 2
     if love.keyboard.isDown('up') then

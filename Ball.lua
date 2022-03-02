@@ -22,8 +22,8 @@ function Ball:init(x, y, width, height)
 
     -- these variables are for keeping track of our velocity on both the
     -- X and Y axis, since the ball can move in two dimensions
-    self.dy = 0
-    self.dx = 0
+    self.dy = math.random(2) == 1 and -100 or 100
+    self.dx = math.random(2) == 1 and math.random(-80, -100) or math.random(80, 100)
 end
 
 --[[
@@ -33,7 +33,7 @@ end
 function Ball:collides(paddle)
     -- first, check to see if the left edge of either is farther to the right
     -- than the right edge of the other
-    if self.x - self.width/2 > paddle.x + paddle.width or paddle.x > self.x + self.width/2 then
+    if self.x > paddle.x + paddle.width or paddle.x > self.x + self.width then
         return false
     end
 
@@ -48,15 +48,17 @@ function Ball:collides(paddle)
 end
 
 --[[
-    Places the ball in the middle of the screen, with no movement.
+    Places the ball in the middle of the screen, with an initial random velocity
+    on both axes.
 ]]
 function Ball:reset()
     self.x = VIRTUAL_WIDTH / 2 - 2
     self.y = VIRTUAL_HEIGHT / 2 - 2
-    self.dx = 0
-    self.dy = 0
 end
 
+--[[
+    Simply applies velocity to position, scaled by deltaTime.
+]]
 function Ball:update(dt)
     self.x = self.x + self.dx * dt
     self.y = self.y + self.dy * dt
